@@ -4,6 +4,14 @@
 
 Implement and test an XDP eBPF program that counts bytes per Layer 4 protocol: TCP, UDP, and ICMP.
 
+## Map Structure
+
+The program uses a BPF array map named `bytes_map` with three entries:
+
+- key 0 = TCP bytes
+- key 1 = UDP bytes
+- key 2 = ICMP bytes
+
 ## Steps
 
 1. Compile the eBPF program.
