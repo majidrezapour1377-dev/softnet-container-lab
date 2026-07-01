@@ -2,7 +2,7 @@
 
 ## Objective
 
-Compile and test a simple XDP eBPF program.
+Implement and test an XDP eBPF program that counts bytes per Layer 4 protocol: TCP, UDP, and ICMP.
 
 ## Steps
 
