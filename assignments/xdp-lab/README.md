@@ -2,45 +2,24 @@
 
 ## Overview
 
-This project implements an XDP eBPF program that counts the total number of bytes for different Layer 4 protocols.
+This project implements an XDP eBPF program that counts the total number of bytes received for different Layer 4 protocols.
 
-The program supports:
+The supported protocols are:
 
 - TCP
 - UDP
 - ICMP
 
-Each protocol has its own counter stored inside a BPF array map.
+The counters are stored inside a BPF array map called `bytes_map`.
 
 ---
+## Project Objective
 
-## BPF Map
-
-The program uses an array map called `bytes_map`.
-
-| Key | Protocol |
-|----:|----------|
-| 0 | TCP |
-| 1 | UDP |
-| 2 | ICMP |
-
-Each entry stores the total number of bytes received for that protocol.
-
----
-
-## Project Structure
-
-```text
-xdp-lab
-├── README.md
-├── screenshots/
-└── src/
-    └── test_xdp.bpf.c
-```
-
----
+The objective of this assignment is to implement an XDP eBPF program that counts the total number of bytes received for TCP, UDP, and ICMP packets using a BPF array map, and to verify its functionality using XDP tools and bpftool.
 
 ## Requirements
+
+Before running the project, make sure the following tools are installed:
 
 - Docker
 - Containerlab
@@ -50,101 +29,129 @@ xdp-lab
 
 ---
 
-## Build
+## Step 1 - Clone the Repository
 
-From the repository root:
+```bash
+git clone <https://github.com/majidrezapour1377-dev/softnet-container-lab.git>
+cd softnet-container-lab
+git checkout multi-lab-structure
+```
+
+---
+
+## Step 2 - Build the eBPF Program
+
+Compile the source code.
 
 ```bash
 cd containerlab/xdp-lab/src
 make
 ```
 
+Expected output:
+
+![Build](screenshots/build.png)
+
 ---
 
-## Deploy
+## Step 3 - Deploy the Topology
+
+Deploy the containerlab topology.
 
 ```bash
 cd ..
 ./deploy.sh
 ```
 
+Expected output:
+
+![Deploy](screenshots/deploy.png)
+
 ---
 
-## Attach the XDP Program
+## Step 4 - Attach the XDP Program
+
+Attach the compiled eBPF object to **node1**.
 
 ```bash
 docker exec clab-xdp-lab-node1 \
 ip link set dev eth1 xdp obj /work/bpf/test_xdp.bpf.o sec xdp
 ```
 
----
-
-## Verify
+Verify that the program is attached correctly.
 
 ```bash
 docker exec clab-xdp-lab-node1 \
 bpftool net show dev eth1
 ```
 
+Expected output:
+
+![Attach](screenshots/attach.png)
+
 ---
 
-## Generate ICMP Traffic
+## Step 5 - Generate Network Traffic
+
+Generate ICMP traffic from **node2**.
 
 ```bash
 docker exec clab-xdp-lab-node2 \
 ping -c 5 10.0.3.1
 ```
 
+Expected output:
+
+![Ping](screenshots/ping.png)
+
 ---
 
-## Read the BPF Map
+## Step 6 - Read the BPF Map
+
+Read the values stored inside the BPF map.
 
 ```bash
 docker exec clab-xdp-lab-node1 \
 bpftool map dump name bytes_map
 ```
 
-Example output:
+Expected output:
 
-```text
-[
-  {
-    "key": 0,
-    "value": 0
-  },
-  {
-    "key": 1,
-    "value": 0
-  },
-  {
-    "key": 2,
-    "value": 490
-  }
-]
-```
+![Map](screenshots/map.png)
+
+The map stores:
+
+| Key | Protocol |
+|-----|----------|
+| 0 | TCP |
+| 1 | UDP |
+| 2 | ICMP |
 
 ---
 
-## Debug Output
+## Step 7 - Read Debug Output
+
+Open one terminal and run:
 
 ```bash
 docker exec clab-xdp-lab-node1 \
 timeout 5 cat /sys/kernel/debug/tracing/trace_pipe
 ```
 
-Example:
+Open another terminal and generate traffic again:
 
-```text
-ICMP bytes: 98
-ICMP bytes: 196
-ICMP bytes: 294
-ICMP bytes: 392
-ICMP bytes: 490
+```bash
+docker exec clab-xdp-lab-node2 \
+ping -c 3 10.0.3.1
 ```
+
+Expected output:
+
+![Trace](screenshots/trace.png)
 
 ---
 
-## Detach the Program
+## Step 8 - Detach the XDP Program
 
 ```bash
 docker exec clab-xdp-lab-node1 \
@@ -153,7 +160,7 @@ ip link set dev eth1 xdp off
 
 ---
 
-## Destroy the Topology
+## Step 9 - Destroy the Topology
 
 ```bash
 ./destroy.sh
@@ -161,9 +168,19 @@ ip link set dev eth1 xdp off
 
 ---
 
+## Source Code
+
+Main source file:
+
+```text
+containerlab/xdp-lab/src/test_xdp.bpf.c
+```
+
+---
+
 ## Screenshots
 
-Execution screenshots are available in the `screenshots` folder.
+All execution screenshots are available in the `screenshots` directory.
 
 ---
 
