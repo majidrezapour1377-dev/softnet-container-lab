@@ -32,10 +32,8 @@ Before running the project, make sure the following tools are installed:
 ## Step 1 - Clone the Repository
 
 ```bash
-git clone <https://github.com/majidrezapour1377-dev/softnet-container-lab.git>
+git clone https://github.com/majidrezapour1377-dev/softnet-container-lab.git
 cd softnet-container-lab
-git checkout multi-lab-structure
-```
 
 ---
 
